@@ -1,0 +1,8 @@
+extends layout
+
+block content
+  p=text
+  form(action="http://localhost:3000/upload", method="post", enctype="multipart/form-data")
+  input(type="file", name="displayImage")
+  input(type="text", name="txt")
+  input(type="submit")
