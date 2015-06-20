@@ -6,6 +6,7 @@ var bodyParser=require('body-parser');
 var fs=require('fs');
 
 
+//model for simple entry
 var EntryModel=new Schema({
     title:  String,
     description:   String,
@@ -14,9 +15,12 @@ var EntryModel=new Schema({
         votes: Number,
         favs:  Number
     },
-    location:[Number,Number],
-    img:{data:Buffer,contentType:String}
+    loc: [Number,Number],
+    //data will hold the 64bit data of the file
+    img:{data:String,contentType:String}
 });
+
+
 //create data model
 var Entry=mongoose.model('Entry',EntryModel);
 
@@ -25,19 +29,24 @@ router.get('/', function(req, res, next) {
     res.render('post');
 });
 
+
 router.post('/upload',function(req,res){
-    var entry=new Entry({title:req.body.title,description:req.body.description,date:Date(),meta:{votes:0,favs:0},location:[req.body.loc.lat,req.body.loc.lon],img:{data:req.body.img.data,contentType:req.body.img.contentType}});
-    console.log(req.body);
-//    fs.readFile(req.files.image, function (err, data) {
-//        console.log('got file');
-//        var newPath = __dirname + "/uploads/uploadedFileName";
-//        fs.writeFile(newPath, data, function (err) {
-//            res.redirect("back");
-//        });
-//    });
+    var entry=new Entry({title:req.body.title,description:req.body.description,date:Date(),meta:{votes:0,favs:0},loc:[req.body.loc.lat,req.body.loc.lon],img:{data:req.body.img.data,contentType:req.body.img.contentType}});
+    console.log(req.body+"\n\n\n");
+    console.log(entry+"\n\n\n");
+    //save an entry to the connected db
     entry.save(function(err, r){
-        console.log('Saved Entry');
-        res.send("Success");
+        console.log(err);
+        if(!err){
+            console.log('Saved Entry');
+            res.send("Success\n");
+        }else{
+            res.send("Error: "+err+"\n");
+        }
     });
+});
+//function to return items near a person
+router.get('/near',function(req,res){
+
 });
 module.exports = router;
