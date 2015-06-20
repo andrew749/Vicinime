@@ -47,20 +47,20 @@ router.post('/upload',function(req,res){
 });
 
 //function to return items near a person
-router.get('/near',function(req,res){
+router.post('/near',function(req,res){
 //    var limit = req.query.limit || 10;
 
     // get the max distance or set it to 8 kilometers
-    var maxDistance = req.query.distance || 8;
+    var maxDistance = req.body.distance || 8;
 
     // we need to convert the distance to radians
     // the raduis of Earth is approximately 6371 kilometers
     maxDistance /= 6371;
     // get coordinates [ <longitude> , <latitude> ]
     var coords = [];
-    coords[0] = req.query.lon;
-    coords[1] = req.query.lat;
-    console.log(coords);
+    coords[0] = req.body.lon;
+    coords[1] = req.body.lat;
+    console.log(coords+" distance:"+maxDistance);
     // find a location
     Entry.find({
       loc: {
