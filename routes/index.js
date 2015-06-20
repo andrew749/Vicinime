@@ -15,15 +15,15 @@ var EntryModel=new Schema({
         votes: Number,
         favs:  Number
     },
-    loc: [Number,Number],
+    loc: { type: {type:String}, coordinates: [Number]},
     //data will hold the 64bit data of the file
-    img:{data:String,contentType:String}
+    img:{data:String,contentType:String},
 });
 
 
 //create data model
 var Entry=mongoose.model('Entry',EntryModel);
-
+EntryModel.index({loc:1});
 /* GET home page. */
 router.get('/', function(req, res, next) {
     res.render('post');
@@ -31,7 +31,7 @@ router.get('/', function(req, res, next) {
 
 
 router.post('/upload',function(req,res){
-    var entry=new Entry({title:req.body.title,description:req.body.description,date:Date(),meta:{votes:0,favs:0},loc:[req.body.loc.lat,req.body.loc.lon],img:{data:req.body.img.data,contentType:req.body.img.contentType}});
+    var entry=new Entry({title:req.body.title,description:req.body.description,date:Date(),meta:{votes:0,favs:0},loc:{type:"Point",coordinates:[req.body.loc.lon,req.body.loc.lat]},img:{data:req.body.img.data,contentType:req.body.img.contentType}});
     console.log(req.body+"\n\n\n");
     console.log(entry+"\n\n\n");
     //save an entry to the connected db
@@ -45,8 +45,38 @@ router.post('/upload',function(req,res){
         }
     });
 });
+
 //function to return items near a person
 router.get('/near',function(req,res){
+//    var limit = req.query.limit || 10;
 
+    // get the max distance or set it to 8 kilometers
+    var maxDistance = req.query.distance || 8;
+
+    // we need to convert the distance to radians
+    // the raduis of Earth is approximately 6371 kilometers
+    maxDistance /= 6371;
+    // get coordinates [ <longitude> , <latitude> ]
+    var coords = [];
+    coords[0] = req.query.lon;
+    coords[1] = req.query.lat;
+    console.log(coords);
+    // find a location
+    Entry.find({
+      loc: {
+        $near: { 
+            $geometry: {
+                    type: "Point" ,
+                    coordinates: coords
+                },
+                $maxDistance: maxDistance
+      }
+    }}).exec(function(err, locations) {
+      if (err) {
+        return res.json(500, err);
+      }
+        console.log(locations);
+      res.json(200, locations);
+    });
 });
 module.exports = router;
