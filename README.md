@@ -5,3 +5,10 @@ curl -X POST -H "Content-Type: application/json" -d '{"title":"Andrew","descript
 
 ###find locations near a point
 curl -X POST -H "Content-Type: application/json" -d '{"lon":43.7990603,"lat":-79.5717607, "distance":1000}' http://localhost:3000/near
+
+###upvote a post
+
+curl -X GET http://localhost:3000/upvote/post-id
+
+###favorite a post
+curl -X GET http://localhost:3000/favorite/post-id

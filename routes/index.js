@@ -87,6 +87,19 @@ router.get('/upvote/:postid',function(req,res){
     });
 
 });
+router.get('/downvote/:postid',function(req,res){
+    Entry.update(
+        {_id:req.params.postid},
+        {
+            $inc:{
+                "meta.votes":-1
+            }
+        }
+    ,null,function(){
+        res.send("Updated");
+    });
+
+});
 router.get('/favorite/:postid',function(req,res){
     Entry.update(
         {_id:req.params.postid},
