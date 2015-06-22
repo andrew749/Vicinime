@@ -28,14 +28,22 @@ EntryModel.index({loc:1});
 router.get('/', function(req, res, next) {
     res.render('post');
 });
-
-
+var dir="files/"
 router.post('/upload',function(req,res){
-    var entry=new Entry({title:req.body.title,description:req.body.description,date:Date(),meta:{votes:0,favs:0},loc:{type:"Point",coordinates:[req.body.loc.lon,req.body.loc.lat]},img:{data:req.body.img.data,contentType:req.body.img.contentType}});
-    console.log(req.body+"\n\n\n");
-    console.log(entry+"\n\n\n");
+    var entry=new Entry({title:req.body.title,description:req.body.description,date:Date(),meta:{votes:0,favs:0},loc:{type:"Point",coordinates:[req.body.loc.lon,req.body.loc.lat]},img:{data:"temp",contentType:req.body.img.contentType}});
+    entry.img.data="files/"+entry._id;
     //save an entry to the connected db
     entry.save(function(err, r){
+        if(!fs.existsSync(dir)){
+            fs.mkdirSync(dir);
+        }
+        fs.writeFile(dir+entry._id, req.body.img.data, function(err) {
+            if(err) {
+                return console.log(err);
+            }
+
+            console.log("The file was saved!");
+        });
         console.log(err);
         if(!err){
             console.log('Saved Entry');
@@ -48,8 +56,6 @@ router.post('/upload',function(req,res){
 
 //function to return items near a person
 router.post('/near',function(req,res){
-//    var limit = req.query.limit || 10;
-
     //1km default distance
     var maxDistance = req.body.distance || 1000;
     var coords = [];
@@ -58,20 +64,23 @@ router.post('/near',function(req,res){
     console.log(coords+" distance:"+maxDistance);
     // find a location
     Entry.find({
-      loc: {
-        $near: { 
-            $geometry: {
+        loc: {
+            $near: { 
+                $geometry: {
                     type: "Point" ,
                     coordinates: coords
                 },
                 $maxDistance: maxDistance
-      }
-    }}).exec(function(err, locations) {
-      if (err) {
-        return res.json(500, err);
-      }
+            }
+        }}).exec(function(err, locations) {
+        if (err) {
+            return res.json(500, err);
+        }
         console.log(locations);
-      res.json(200, locations);
+        for (var x in locations){
+            locations[x].img.data=fs.readFileSync(dir+locations[x]._id);
+        }
+        res.json(200, locations);
     });
 });
 router.get('/upvote/:postid',function(req,res){
@@ -82,9 +91,9 @@ router.get('/upvote/:postid',function(req,res){
                 "meta.votes":1
             }
         }
-    ,null,function(){
-        res.send("Updated");
-    });
+        ,null,function(){
+            res.send("Updated");
+        });
 
 });
 router.get('/downvote/:postid',function(req,res){
@@ -95,9 +104,9 @@ router.get('/downvote/:postid',function(req,res){
                 "meta.votes":-1
             }
         }
-    ,null,function(){
-        res.send("Updated");
-    });
+        ,null,function(){
+            res.send("Updated");
+        });
 
 });
 router.get('/favorite/:postid',function(req,res){
@@ -108,9 +117,9 @@ router.get('/favorite/:postid',function(req,res){
                 "meta.favs":1
             }
         }
-    ,null,function(){
-        res.send("Favorited");
-    });
+        ,null,function(){
+            res.send("Favorited");
+        });
 
 });
 module.exports = router;
