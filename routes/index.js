@@ -4,8 +4,7 @@ var mongoose=require('mongoose')
 var Schema=mongoose.Schema;
 var bodyParser=require('body-parser');
 var fs=require('fs');
-
-
+var request=require('request');
 //model for simple entry
 var EntryModel=new Schema({
     title:  String,
@@ -65,7 +64,7 @@ router.post('/near',function(req,res){
     // find a location
     Entry.find({
         loc: {
-            $near: { 
+            $near: {
                 $geometry: {
                     type: "Point" ,
                     coordinates: coords
@@ -122,4 +121,27 @@ router.get('/favorite/:postid',function(req,res){
         });
 
 });
+
+router.get('/events',function(req,res){
+  searchEventsNearLocation(-79.587646,43.7993736,10,function(error,response,body){
+    res.send(response);
+  });
+});
+var baseURL='https://www.eventbriteapi.com/v3/';
+
+function searchEventsNearLocation(latitude,longitude,distance, callback){
+  var urlString=baseURL+'events/search/';
+  var propertiesObject={
+    'location.longitude':longitude,
+    'location.latitude' :latitude,
+    'location.within'   :distance
+  };
+  request.get({
+    headers:{'Authorization':'Bearer '+OAUTH},
+    url:urlString,
+    form: propertiesObject
+  },callback);
+}
+var OAUTH="OJS4GQXGCLXQVD4AMCZN";
 module.exports = router;
+
