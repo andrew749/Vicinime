@@ -123,8 +123,8 @@ router.get('/favorite/:postid',function(req,res){
 });
 
 router.get('/events',function(req,res){
-  searchEventsNearLocation(-79.587646,43.7993736,10,function(error,response,body){
-    res.send(response);
+  searchEventsNearLocation(req.latitude,req.longitude,req.distance,function(error,response,body){
+    res.send(filterResponse(response));
   });
 });
 var baseURL='https://www.eventbriteapi.com/v3/';
@@ -141,6 +141,21 @@ function searchEventsNearLocation(latitude,longitude,distance, callback){
     url:urlString,
     form: propertiesObject
   },callback);
+}
+
+function filterResponse(response){
+  var body = response.body;
+  return body;
+  var events=[];
+  for (x in eventsHTML){
+    console.log("looping");
+    events.append( new event(x.name.text,test));
+  }
+  return events;
+}
+var event = function(name, location){
+  this.name=name;
+  this.location=location;
 }
 var OAUTH="OJS4GQXGCLXQVD4AMCZN";
 module.exports = router;
