@@ -144,13 +144,13 @@ function searchEventsNearLocation(latitude,longitude,distance, callback){
 }
 
 function filterResponse(response){
-  var body = response.body;
-  return body;
-  var events=[];
-  for (x in eventsHTML){
-    console.log("looping");
-    events.append( new event(x.name.text,test));
+  var eventCode = JSON.parse(response.body);
+  var events = [];
+  for (x in eventCode.events){
+    var object= eventCode.events[x];
+    events.push( new event(object.name.text,"test"));
   }
+  console.log(events);
   return events;
 }
 var event = function(name, location){
