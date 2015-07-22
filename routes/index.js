@@ -132,9 +132,11 @@ var baseURL='https://www.eventbriteapi.com/v3/';
 function searchEventsNearLocation(latitude,longitude,distance, callback){
   var urlString=baseURL+'events/search/';
   var propertiesObject={
-    'location.longitude':longitude,
-    'location.latitude' :latitude,
-    'location.within'   :distance
+    'location.longitude':   longitude,
+    'location.latitude' :   latitude,
+    'location.within'   :   distance+'km',
+    'sort_by'           :   'distance',
+    'popular'           :   true
   };
   request.get({
     headers:{'Authorization':'Bearer '+OAUTH},
@@ -147,15 +149,12 @@ function filterResponse(response){
   var eventCode = JSON.parse(response.body);
   var events = [];
   for (x in eventCode.events){
+    //console.log('#####EVENT NUMBER '+x+'##########\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n');
     var object= eventCode.events[x];
-    events.push( new event(object.name.text,"test"));
+    console.log(object.name.text);
+    events.push(object);
   }
-  console.log(events);
   return events;
-}
-var event = function(name, location){
-  this.name=name;
-  this.location=location;
 }
 var OAUTH="OJS4GQXGCLXQVD4AMCZN";
 module.exports = router;
