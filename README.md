@@ -1,5 +1,8 @@
 #Vicinime
 ###Explore today.
+##Requirements
+* mongodb server running
+* nodejs installed with express
 ##Simple request
 ###add an entry to the db
 curl -X POST -H "Content-Type: application/json" -d '{"title":"Andrew","description":"Test description","loc":{"lon":43.7990603,"lat":-79.5717607},"img":{"data":"test","contentType":"media/jpeg"}}' http://localhost:3000/upload
